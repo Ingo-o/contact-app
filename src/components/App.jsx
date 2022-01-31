@@ -6,41 +6,26 @@ import {useState, useEffect} from "react";
 import {v4 as uuidv4} from 'uuid';
 import {BrowserRouter, Route, Switch} from "react-router-dom";
 import ContactDetails from "./ContactDitails";
-import api from '../api/contacts';
 import EditContact from "./EditContact";
 
 const App = () => {
-    /*const LOCAL_STORAGE_KEY = "contacts";*/
+    const LOCAL_STORAGE_KEY = "contacts";
     const [contacts, setContacts] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
     const [searchResults, setSearchResults] = useState([]);
 
-    const retrieveContacts = async () => {
-        const response = await api.get("/contacts");
-        return response.data;
-    }
-
-    const addContactHandler = async (contact) => {
-        const request = {
-            id: uuidv4(),
-            ...contact
-        }
-
-        const response = await api.post("/contacts", request);
-        setContacts([...contacts, response.data]);
+    const addContactHandler = (contact) => {
+        setContacts([...contacts, {id: uuidv4(), ...contact}]);
     };
 
-    const updateContactHandler = async (contact) => {
-        const response = await api.put(`/contacts/${contact.id}`, contact);
-        const {id} = response.data;
+    const updateContactHandler = (updatedContact) => {
         setContacts(contacts.map(contact => {
-            return contact.id === id ? {...response.data} : contact;
+            return contact.id === updatedContact.id ? {...updatedContact} : contact;
         }))
     };
 
-    const removeContactHandler = async (id) => {
-        await api.delete(`/contacts/${id}`)
-        const newContactList = contacts.filter(contact => contact.id !== id)
+    const removeContactHandler = (id) => {
+        const newContactList = contacts.filter(contact => contact.id !== id);
         setContacts(newContactList);
     }
 
@@ -60,17 +45,12 @@ const App = () => {
     };
 
     useEffect(() => {
-        /*const retrieveContacts = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY));
-        if (retrieveContacts) setContacts(retrieveContacts)*/
-        const getAllContacts = async () => {
-            const allContacts = await retrieveContacts();
-            if (allContacts) setContacts(allContacts);
-        };
-        getAllContacts();
+        const retrieveContacts = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY));
+        if (retrieveContacts) setContacts(retrieveContacts)
     }, [])
 
     useEffect(() => {
-        /*localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(contacts));*/
+        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(contacts));
     }, [contacts])
 
     return (

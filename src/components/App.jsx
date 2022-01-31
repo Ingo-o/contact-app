@@ -55,7 +55,7 @@ const App = () => {
 
     return (
         <div className="ui container">
-            <BrowserRouter>
+            <BrowserRouter basename={process.env.PUBLIC_URL}>
                 <Header/>
                 <Switch>
                     <Route path='/' exact
